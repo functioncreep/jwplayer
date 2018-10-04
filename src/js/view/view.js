@@ -72,6 +72,7 @@ function View(_api, _model) {
     let _resizeContainerRequestId = -1;
     let _resizeOnFloat = false;
     let _stateClassRequestId = -1;
+    let _canFloat = false;
 
     let displayClickHandler;
     let fullscreenHelpers;
@@ -838,7 +839,7 @@ function View(_api, _model) {
     function _setFloatingIntersection(entry) {
         // Entirely invisible and no floating player already in the DOM
         const isVisible = entry.intersectionRatio === 1;
-        if (!isVisible && _model.get('state') !== STATE_IDLE && floatingPlayer === null) {
+        if (!isVisible && _model.get('state') !== STATE_IDLE && floatingPlayer === null && _canFloat) {
             floatingPlayer = _playerElement;
 
             const rect = bounds(_playerElement);
@@ -857,12 +858,14 @@ function View(_api, _model) {
             _resizeOnFloat = false;
         } else if (isVisible) {
             _stopFloating();
+            _canFloat = true;
         }
     }
 
     function _stopFloating() {
         if (floatingPlayer === _playerElement) {
             floatingPlayer = null;
+            _canFloat = false;
 
             removeClass(_playerElement, 'jw-flag-floating');
             _this.trigger(FLOAT, { floating: false });
